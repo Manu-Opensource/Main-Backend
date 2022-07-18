@@ -34,14 +34,15 @@ async function CMS_LOGIN() {
     await CMS_GET("login", {username: CMS_USERNAME, password: CMS_PASSWORD});
 }
 
-export async function getCollections(): Promise<Document[][]> {
-    let collections = (await CMS_GET("collections")) as Document[][] | void;
-    if (collections) return collections;
+export async function getCollections(): Promise<string[]> {
+    let collections = (await CMS_GET("collections")) as string[] | void;
+    if (collections) return collections.filter((collection) => {return !collection.startsWith("CMS")});
     else return null;
 }
 
-export async function getCollection(collectionName: string): Promise<Document[]>  {
-    let collection = (await CMS_GET("collection", {name: collectionName})) as Document[] | void; 
+export async function getCollection(collectionName: string): Promise<Document[]> | null  {
+    if (collectionName.startsWith("CMS")) return null;
+    let collection = (await CMS_GET("getcollection", {name: collectionName})) as Document[] | void; 
     if (collection) return collection;
     else return null;
 }

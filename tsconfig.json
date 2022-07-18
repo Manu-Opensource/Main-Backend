@@ -5,11 +5,7 @@
     "target": "es6",
     "moduleResolution": "node",
     "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "@interfaces/*": ["src/interfaces/*"],
-      "@controllers/*": ["src/controllers/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*", "index.ts"]
 }

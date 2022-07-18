@@ -1,4 +1,4 @@
-import Route from '@interfaces/route';
+import Route from '../interfaces/route';
 import { getCollections } from '../controllers/cms';
 import express from 'express';
 
