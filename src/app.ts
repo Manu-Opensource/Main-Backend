@@ -1,9 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import express from 'express';
+import cors from 'cors';
+
+const FRONTEND_LINK = "http://localhost:3000"
 
 function initExpress(): express.Application {
     const app = express();
+    app.use(cors({
+        origin: FRONTEND_LINK,
+        credentials: true,
+    }));
     return app;
 }
 
