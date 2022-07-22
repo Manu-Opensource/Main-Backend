@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { wrapper } from 'axios-cookiejar-support';
 import { CookieJar } from 'tough-cookie';
+import Document from '../interfaces/document';
 
 const CMS_LINK = "http://localhost:8081" //To-Do: Move to a .env file. (And make stronger credentials)
 const CMS_USERNAME = "Admin"
@@ -34,15 +35,18 @@ async function CMS_LOGIN() {
     await CMS_GET("login", {username: CMS_USERNAME, password: CMS_PASSWORD});
 }
 
-export async function getCollections(): Promise<string[]> {
-    let collections = (await CMS_GET("collections")) as string[] | void;
-    if (collections) return collections.filter((collection) => {return !collection.startsWith("CMS")});
-    else return null;
-}
-
 export async function getCollection(collectionName: string): Promise<Document[]> | null  {
     if (collectionName.startsWith("CMS")) return null;
     let collection = (await CMS_GET("getcollection", {name: collectionName})) as Document[] | void; 
     if (collection) return collection;
     else return null;
 }
+
+export async function getDocument(collectionName: string, documentId: string): Promise<Document> | null {
+    if (collectionName.startsWith("CMS")) return null;
+    let document = (await CMS_GET("getdocument", {collectionname: collectionName, documentid: documentId})) as Document | void;
+    if (document) return document;
+    else return null;
+}
+
+
