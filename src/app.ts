@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 
 const FRONTEND_LINK = "http://localhost:3000"
 
@@ -18,6 +19,16 @@ function handleRoutes(app: express.Application) {
     fs.readdirSync(path.resolve(__dirname, "./routes")).forEach((file) => {
         const route = new (require(`./routes/${file}`).default)
         console.log(route);
+
+        if (route.timeoutTime && route.timeoutRequests) {
+            const limiter = rateLimit({
+                windowMs: route.timeoutTime,
+                max: route.timeoutRequests,
+                standardHeaders: true,
+                legacyHeaders: false,
+            });
+            app.use(`/api/${route.path}`, limiter);
+        }
         app.get(`/api/${route.path}`, route.run);
     });
     app.listen(3003);

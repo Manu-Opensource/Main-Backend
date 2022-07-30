@@ -4,6 +4,8 @@ import express from 'express';
 
 export default class Courses implements Route {
     path = "courses"
+    timeoutTime = 30 * 1000
+    timeoutRequests = 30
 
     run = (req: express.Request, res: express.Response): (void) => {
         getCollection("Courses").then(courses => {
