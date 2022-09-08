@@ -4,7 +4,8 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
-const FRONTEND_LINK = "http://localhost:3000"
+//const FRONTEND_LINK = "http://localhost:3000"
+const FRONTEND_LINK = "http://127.0.0.1:3000"
 
 function initExpress(): express.Application {
     const app = express();

@@ -23,6 +23,7 @@ async function CMS_GET(path: string, args?: any) : Promise<any> {
 
 async function CMS_POST(path: string, args?: any) : Promise<any> {
     let res = await axiosClient.post(`${CMS_LINK}/api/${path}`, args ? args : {}).catch(async e => {
+        console.log(e);
         if (e.response.status == 403) {
             await CMS_LOGIN();
             return await CMS_POST(path, args);
@@ -49,4 +50,13 @@ export async function getDocument(collectionName: string, documentId: string): P
     else return null;
 }
 
+export async function addDocument(collectionName: string, document: Map<string, string>[]) : Promise<null> | null {
+    if (collectionName.startsWith("CMS")) return null;
+    await CMS_POST("createdocument", {collectionName: collectionName, doc: document.map(m => Object.fromEntries(m))});
+    return;
+}
+
+export function mapToCMSScheme(map: Map<string, string>) : Map<string, string>[] {
+   return Object.entries(map).map(([k, v]) => (new Map([["name", k], ["value", v]])));
+}
 
