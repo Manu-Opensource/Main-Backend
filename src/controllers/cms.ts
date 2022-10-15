@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { wrapper } from 'axios-cookiejar-support';
 import { CookieJar } from 'tough-cookie';
-import Document from '../interfaces/document';
 
 const CMS_LINK = "http://localhost:8081" //To-Do: Move to a .env file. (And make stronger credentials)
 const CMS_USERNAME = "Admin"
@@ -36,27 +35,39 @@ async function CMS_LOGIN() {
     await CMS_GET("login", {username: CMS_USERNAME, password: CMS_PASSWORD});
 }
 
-export async function getCollection(collectionName: string): Promise<Document[]> | null  {
+export async function getCollection(collectionName: string): Promise<Object[][]> | null  {
     if (collectionName.startsWith("CMS")) return null;
-    let collection = (await CMS_GET("getcollection", {name: collectionName})) as Document[] | void; 
+    let collection = (await CMS_GET("getcollection", {name: collectionName})) as Object[][] | void; 
     if (collection) return collection;
     else return null;
 }
 
-export async function getDocument(collectionName: string, documentId: string): Promise<Document> | null {
+export async function getDocument(collectionName: string, documentId: string): Promise<Object[]> | null {
     if (collectionName.startsWith("CMS")) return null;
-    let document = (await CMS_GET("getdocument", {collectionname: collectionName, documentid: documentId})) as Document | void;
+    let document = (await CMS_GET("getdocument", {collectionname: collectionName, documentid: documentId})) as Object[] | void;
     if (document) return document;
     else return null;
 }
 
-export async function addDocument(collectionName: string, document: Map<string, string>[]) : Promise<null> | null {
+export async function addDocument(collectionName: string, document: Object) : Promise<null> | null {
     if (collectionName.startsWith("CMS")) return null;
-    await CMS_POST("createdocument", {collectionName: collectionName, doc: document.map(m => Object.fromEntries(m))});
+    await CMS_POST("createdocument", {collectionName: collectionName, doc: document});
     return;
 }
 
-export function mapToCMSScheme(map: Map<string, string>) : Map<string, string>[] {
-   return Object.entries(map).map(([k, v]) => (new Map([["name", k], ["value", v]])));
+export function objectToCMSScheme(object: Object) : Object[] {
+    let ret = [];
+    Object.keys(object).forEach(key => {
+        ret.push({"value": object[key], "name": key}); 
+    });
+    return ret;
+}
+
+export function CMSSchemeToObject(cmsScheme: Object[]) : Object {
+    let ret = {};
+    cmsScheme.forEach(entry => {
+        ret[entry['Key']] = entry['Value']
+    });
+    return ret;
 }
 
