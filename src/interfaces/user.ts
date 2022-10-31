@@ -4,7 +4,7 @@ export default interface User {
     email: string;
     passwordHashed: string;
     
-    completedLessons: number[];
-    completedCourses: number[];
+    completedLessons: string[];
+    completedCourses: string[];
 }
 

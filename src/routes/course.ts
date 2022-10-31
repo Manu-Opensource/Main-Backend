@@ -6,7 +6,7 @@ export default class Course implements Route {
     path = "course/:courseId"
 
     run = (req: express.Request, res: express.Response): (void) => {
-        getDocument("Courses", req.params.courseId).then(course => {
+        getDocument("Course", req.params.courseId).then(course => {
             if (course) res.send(course);
             else res.status(404).send(null);
         });

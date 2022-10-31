@@ -1,31 +1,21 @@
 import User from '../interfaces/user';
-import { getDocument, addDocument, CMSSchemeToObject, objectToCMSScheme } from './cms';
+import { getDocument, addDocument, updateDocument, getDocumentByQuery } from './cms';
+import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
-function emailHash(email: string) : string { //My CMS doesn't support custom queries so document lookups can only be done with ID
-    //So, emails are hashed into IDs, that way when users provide email for signin, that can be turned into ID for lookup.
-    return crypto.createHash('sha256').update(email).digest('hex');
-}
-
 export async function getUser(userId: string) : Promise<User> | null {
-    let docO = await getDocument("Users", userId);
-    if (!docO) return null;
-    let doc = CMSSchemeToObject(docO) as any
+    let doc = await getDocument("User", userId) as User;
+    if (!doc) return null;
+    delete doc['_id'];
+    delete doc['__v'];
 
-    let ret: User = {} as User;
-    ret.id = doc.Id;
-    ret.email = doc.email;
-    ret.passwordHashed = doc.passwordHashed;
-    ret.completedLessons = (doc.completedLessons || "");
-    ret.completedCourses = (doc.completedCourses || "");
-    return ret;
+    return doc;
 }
 
 export async function getUserFromEmail(email: string) : Promise<User> | null {
-    let id = emailHash(email);
-    return await getUser(id);
+    let doc = await getDocumentByQuery("User", {email: email}) as User
+    return doc;
 }
 
 export function generateUserJWT(userId: string) : string {
@@ -44,13 +34,15 @@ export function decodeUserJWT(token: string) : any {
 //Returns jwt or null
 export async function createUser(email: string, password: string) : Promise<string> | null {
     let user: any = {};
-    user.Id = emailHash(email);
+    user.id = randomUUID();
     user.email = email;
     user.passwordHashed = await bcrypt.hash(password, 10);
-    user.completedLessons = "[]";
-    user.completedCourses = "[]";
+    user.completedLessons = [];
+    user.completedCourses = [];
 
-    await addDocument("Users", objectToCMSScheme(user));
+    console.log(user);
+
+    await addDocument("User", user);
     return generateUserJWT(user.id)        
 }
 
@@ -63,5 +55,10 @@ export async function loginUser(email: string, password: string): Promise<[boole
         return [false, "Invalid Password"];
     }
     return [true, generateUserJWT(user.id)];
+}
+
+export async function updateUser(user: User) : Promise<null> {
+    await updateDocument("Users", user, user.id)
+    return;
 }
 

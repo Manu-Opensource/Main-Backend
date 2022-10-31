@@ -12,7 +12,7 @@ const axiosClient = wrapper(axios.create({ jar }));
 async function CMS_GET(path: string, args?: any) : Promise<any> {
     let res = await axiosClient.get(`${CMS_LINK}/api/${path}`, {
             params: args ? args : {}}).catch(async e => {
-        if (e.response.status == 403) {
+        if (e.response.status == 401) {
             await CMS_LOGIN();
             return await CMS_GET(path, args);
         } else return null;
@@ -23,51 +23,49 @@ async function CMS_GET(path: string, args?: any) : Promise<any> {
 async function CMS_POST(path: string, args?: any) : Promise<any> {
     let res = await axiosClient.post(`${CMS_LINK}/api/${path}`, args ? args : {}).catch(async e => {
         console.log(e);
-        if (e.response.status == 403) {
+        if (e.response.status == 401) {
             await CMS_LOGIN();
             return await CMS_POST(path, args);
         } else return null;
     });
     return res ? res.data : null;
 }
-
 async function CMS_LOGIN() {
     await CMS_GET("login", {username: CMS_USERNAME, password: CMS_PASSWORD});
 }
 
-export async function getCollection(collectionName: string): Promise<Object[][]> | null  {
-    if (collectionName.startsWith("CMS")) return null;
-    let collection = (await CMS_GET("getcollection", {name: collectionName})) as Object[][] | void; 
+export async function getCollection(collectionName: string): Promise<Object[]> | null  {
+    if (collectionName.startsWith("cms")) return null;
+    let collection = (await CMS_GET(`get-collection/${collectionName}`)) as Object[] | void; 
     if (collection) return collection;
     else return null;
 }
 
-export async function getDocument(collectionName: string, documentId: string): Promise<Object[]> | null {
-    if (collectionName.startsWith("CMS")) return null;
-    let document = (await CMS_GET("getdocument", {collectionname: collectionName, documentid: documentId})) as Object[] | void;
+export async function getDocumentByQuery(collectionName: string, query: Object) : Promise<Object> | null {
+    if (collectionName.startsWith("cms")) return null;
+    let document = (await CMS_POST(`get-document/${collectionName}`, {query: query})) as Object[] | void;
     if (document) return document;
     else return null;
 }
 
+export async function getDocument(collectionName: string, documentId: string): Promise<Object> | null {
+    return getDocumentByQuery(collectionName, {id: documentId});
+}
+
 export async function addDocument(collectionName: string, document: Object) : Promise<null> | null {
     if (collectionName.startsWith("CMS")) return null;
-    await CMS_POST("createdocument", {collectionName: collectionName, doc: document});
+    await CMS_POST(`add-document/${collectionName}`, document);
     return;
 }
 
-export function objectToCMSScheme(object: Object) : Object[] {
-    let ret = [];
-    Object.keys(object).forEach(key => {
-        ret.push({"value": object[key], "name": key}); 
-    });
-    return ret;
+export async function updateDocumentByQuery(collectionName: string, document: Object, query: Object) : Promise<null> | null {
+    if (collectionName.startsWith("CMS")) return null;
+    let body = {query: query};
+    Object.keys(document).forEach(key => {body[key] = document[key]});
+    await CMS_POST(`update-document/${collectionName}`, body);
+    return;
 }
 
-export function CMSSchemeToObject(cmsScheme: Object[]) : Object {
-    let ret = {};
-    cmsScheme.forEach(entry => {
-        ret[entry['Key']] = entry['Value']
-    });
-    return ret;
+export async function updateDocument(collectionName: string, document: Object, documentId: string) : Promise<null> | null {
+    return updateDocumentByQuery(collectionName, document, {id: documentId})
 }
-

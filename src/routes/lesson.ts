@@ -8,7 +8,7 @@ export default class Lesson implements Route {
     timeoutRequests = 30
 
     run = (req: express.Request, res: express.Response): (void) => {
-        getDocument("Lessons", req.params.lessonId).then(lesson => {
+        getDocument("Lesson", req.params.lessonId).then(lesson => {
             if (lesson) res.send(lesson);
             else res.status(404).send(null);
         });

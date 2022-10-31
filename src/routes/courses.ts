@@ -8,7 +8,7 @@ export default class Courses implements Route {
     timeoutRequests = 30
 
     run = (req: express.Request, res: express.Response): (void) => {
-        getCollection("Courses").then(courses => {
+        getCollection("Course").then(courses => {
             res.send(courses);
         });
     }
