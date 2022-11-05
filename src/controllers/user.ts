@@ -58,7 +58,7 @@ export async function loginUser(email: string, password: string): Promise<[boole
 }
 
 export async function updateUser(user: User) : Promise<null> {
-    await updateDocument("Users", user, user.id)
+    await updateDocument("User", user, user.id)
     return;
 }
 

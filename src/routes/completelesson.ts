@@ -20,14 +20,13 @@ export default class CompleteLesson implements Route {
             let resp = decodeUserJWT(jwt)
             if (resp) {
                 let user = await getUser(resp.id);
-                console.log(user);
-                console.log(user.completedLessons);
-                if (req.query.complete) {
+                if (req.query.completed) {
                     user.completedLessons.push(req.params.lessonId as string);
                 } else {
                     user.completedLessons.splice(user.completedLessons.indexOf(req.params.lessonId as string), 1);
                 }
                 updateUser(user)
+                res.status(200).send("OK");
             } else
                 res.status(401).send("Invalid Authorization Cookie");
         }
