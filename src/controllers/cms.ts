@@ -1,3 +1,5 @@
+//Originally this served greater purpose as this was built around an external CMS, but since transitioning to Github as a CMS, this just serves as a wrapper
+//for the remnants of the original CMS (Which is just used to store user data now)
 import axios from 'axios';
 import { wrapper } from 'axios-cookiejar-support';
 import { CookieJar } from 'tough-cookie';
