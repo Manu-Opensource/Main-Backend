@@ -1,11 +1,11 @@
 import User from '../interfaces/user';
-import { getDocument, addDocument, updateDocument, getDocumentByQuery } from './cms';
+import UserSchema from '../models/user';
 import { randomUUID } from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export async function getUser(userId: string) : Promise<User> | null {
-    let doc = await getDocument("User", userId) as User;
+    let doc = await UserSchema.findOne({id: userId}).exec();
     if (!doc) return null;
     delete doc['_id'];
     delete doc['__v'];
@@ -14,7 +14,7 @@ export async function getUser(userId: string) : Promise<User> | null {
 }
 
 export async function getUserFromEmail(email: string) : Promise<User> | null {
-    let doc = await getDocumentByQuery("User", {email: email}) as User
+    let doc = await UserSchema.findOne({email: email}).exec();
     return doc;
 }
 
@@ -40,9 +40,7 @@ export async function createUser(email: string, password: string) : Promise<stri
     user.completedLessons = [];
     user.completedCourses = [];
 
-    console.log(user);
-
-    await addDocument("User", user);
+    await UserSchema.create(user);
     return generateUserJWT(user.id)        
 }
 
@@ -58,7 +56,7 @@ export async function loginUser(email: string, password: string): Promise<[boole
 }
 
 export async function updateUser(user: User) : Promise<null> {
-    await updateDocument("User", user, user.id)
+    await UserSchema.findOneAndUpdate({id: user.id}, user)
     return;
 }
 

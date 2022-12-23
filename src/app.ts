@@ -3,6 +3,9 @@ import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import database from './controllers/database';
+
+database.connect();
 
 const FRONTEND_LINK = "http://localhost:3000"
 //const FRONTEND_LINK = "http://127.0.0.1:3000"
